@@ -417,24 +417,7 @@ npm test
 npm run test:coverage
 ```
 
-## Publishing to npm
 
-1. **Update package.json:**
-   - Set your author name
-   - Update repository URL
-   - Verify version number
-
-2. **Login to npm:**
-
-```bash
-npm login
-```
-
-3. **Publish:**
-
-```bash
-npm publish
-```
 
 ## Troubleshooting
 
