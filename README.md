@@ -2,7 +2,7 @@
 
 A production-ready CLI tool to remove comments, console statements, and emojis from your JavaScript/TypeScript codebase with checkpoint/restore functionality.
 
-![npm version](https://img.shields.io/npm/v/code-cleanup-cli)
+![npm version](https://www.npmjs.com/package/code-cleanup-cli)
 ![license](https://img.shields.io/npm/l/code-cleanup-cli)
 
 ## Features
