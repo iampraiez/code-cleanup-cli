@@ -1,0 +1,23 @@
+# Example configuration file for code-cleanup-cli
+# Save this as .cleanuprc or .cleanuprc.json in your project root
+
+{
+  "comments": true,
+  "console": {
+    "remove": "all",
+    "exclude": ["error", "warn"]
+  },
+  "emojis": true,
+  "fileTypes": ["js", "jsx", "ts", "tsx", "vue", "mjs", "cjs"],
+  "ignore": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    "*.min.js"
+  ],
+  "checkpoint": {
+    "enabled": true,
+    "retention": 10
+  }
+}

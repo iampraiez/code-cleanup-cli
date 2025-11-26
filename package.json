@@ -1,0 +1,73 @@
+{
+  "name": "code-cleanup-cli",
+  "version": "1.0.0",
+  "description": "A production-ready CLI tool to remove comments, console statements, and emojis from your codebase with checkpoint/restore functionality",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "cleanup": "./dist/bin/cleanup.js",
+    "code-cleanup": "./dist/bin/cleanup.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/bin/cleanup.ts",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "lint": "eslint src tests",
+    "prepublishOnly": "npm run build && npm test",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "cleanup",
+    "comments",
+    "console",
+    "emoji",
+    "remove",
+    "cli",
+    "code-quality",
+    "ast",
+    "babel",
+    "refactor",
+    "checkpoint",
+    "restore",
+    "typescript"
+  ],
+  "author": "Praise Olaoye <himpraise571@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iampraiez/code-cleanup-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iampraiez/code-cleanup-cli/issues"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.23.0",
+    "@babel/parser": "^7.23.0",
+    "@babel/traverse": "^7.23.0",
+    "@babel/types": "^7.23.0",
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "emoji-regex": "^10.3.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
+    "inquirer": "^8.2.5",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.9",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

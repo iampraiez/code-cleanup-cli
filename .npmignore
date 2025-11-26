@@ -1,0 +1,21 @@
+# Exclude from npm package
+src/
+.cleanup-checkpoints/
+coverage/
+.nyc_output/
+tests/
+*.test.ts
+*.test.js
+.vscode/
+.idea/
+.DS_Store
+.git/
+.gitignore
+examples/
+*.md
+!README.md
+!CHANGELOG.md
+tsconfig.json
+jest.config.js
+init-git.sh
+test-samples/
