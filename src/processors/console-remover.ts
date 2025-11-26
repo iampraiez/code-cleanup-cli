@@ -1,7 +1,11 @@
 import parser from '@babel/parser';
-import traverse from '@babel/traverse';
-import generate from '@babel/generator';
+import _traverse from '@babel/traverse';
+import _generate from '@babel/generator';
 import * as t from '@babel/types';
+
+// Handle ESM default exports for Babel packages
+const traverse = (_traverse as any).default || _traverse;
+const generate = (_generate as any).default || _generate;
 
 /**
  * All console methods
@@ -72,7 +76,7 @@ export function removeConsoleStatements(
 
     traverse(ast, {
       // Handle console.log() as expression statement
-      ExpressionStatement(path) {
+      ExpressionStatement(path: any) {
         if (shouldRemoveConsole(path.node.expression, methodsToRemove)) {
           path.remove();
           consoleStatementsRemoved++;
@@ -80,7 +84,7 @@ export function removeConsoleStatements(
       },
       
       // Handle console.log() in variable declarations, etc.
-      CallExpression(path) {
+      CallExpression(path: any) {
         if (shouldRemoveConsole(path.node, methodsToRemove)) {
           // Check if it's a standalone expression or part of something
           const parent = path.parent;
@@ -156,7 +160,7 @@ export function getConsoleMethods(code: string): string[] {
     });
 
     traverse(ast, {
-      CallExpression(path) {
+      CallExpression(path: any) {
         const callee = path.node.callee;
         if (t.isMemberExpression(callee) &&
             t.isIdentifier(callee.object, { name: 'console' }) &&

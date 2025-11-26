@@ -1,6 +1,10 @@
 import parser from '@babel/parser';
-import traverse from '@babel/traverse';
-import generate from '@babel/generator';
+import _traverse from '@babel/traverse';
+import _generate from '@babel/generator';
+
+// Handle ESM default exports for Babel packages
+const traverse = (_traverse as any).default || _traverse;
+const generate = (_generate as any).default || _generate;
 
 /**
  * Comment removal options
@@ -41,8 +45,11 @@ export function removeComments(code: string, options: CommentRemovalOptions = {}
         'dynamicImport',
         'optionalChaining',
         'nullishCoalescingOperator'
-      ]
-    } as any);
+      ],
+      // @ts-ignore - attachComments is valid but missing from types in some versions
+      attachComments: true,
+      tokens: true
+    });
 
     // Filter comments
     if (ast.comments) {
@@ -74,10 +81,10 @@ export function removeComments(code: string, options: CommentRemovalOptions = {}
 
     // Also remove comments from leadingComments and trailingComments
     traverse(ast, {
-      enter(path) {
+      enter(path: any) {
         if (path.node.leadingComments) {
           const originalCount = path.node.leadingComments.length;
-          path.node.leadingComments = path.node.leadingComments.filter(comment => {
+          path.node.leadingComments = path.node.leadingComments.filter((comment: any) => {
             const value = comment.value.trim();
             
             if (preserveLicense && (
@@ -100,7 +107,7 @@ export function removeComments(code: string, options: CommentRemovalOptions = {}
         
         if (path.node.trailingComments) {
           const originalCount = path.node.trailingComments.length;
-          path.node.trailingComments = path.node.trailingComments.filter(comment => {
+          path.node.trailingComments = path.node.trailingComments.filter((comment: any) => {
             const value = comment.value.trim();
             
             if (preserveLicense && (
@@ -143,20 +150,34 @@ export function removeComments(code: string, options: CommentRemovalOptions = {}
 
 /**
  * Fallback regex-based comment removal
+ * Improved to handle strings better
  */
 function removeCommentsRegex(code: string): CommentRemovalResult {
   let count = 0;
   
-  // Remove single-line comments
-  let result = code.replace(/\/\/.*$/gm, () => {
-    count++;
-    return '';
-  });
+  // This is a basic fallback. For perfect accuracy, AST is required.
+  // We try to avoid matching // inside strings by using a more complex regex
+  // or by replacing strings with placeholders first, but that's complex.
   
-  // Remove multi-line comments
-  result = result.replace(/\/\*[\s\S]*?\*\//g, () => {
-    count++;
-    return '';
+  // Simple approach: Match strings OR comments, and only replace comments
+  // Regex for strings: "..." | '...' | `...`
+  // Regex for comments: //... | /* ... */
+  
+  const stringRegex = /"(\\.|[^"\\])*"|'(\\.|[^'\\])*'|`(\\.|[^`\\])*`/g;
+  const commentRegex = /\/\/.*$|\/\*[\s\S]*?\*\//gm;
+  
+  // We'll use a combined regex to tokenize the input
+  const combinedRegex = /("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|`(\\.|[^`\\])*`)|(\/\/.*$|\/\*[\s\S]*?\*\/)/gm;
+  
+  const result = code.replace(combinedRegex, (match, string, comment) => {
+    if (string) {
+      return string; // Keep strings as is
+    }
+    if (match.trim().startsWith('//') || match.trim().startsWith('/*')) {
+      count++;
+      return ''; // Remove comments
+    }
+    return match;
   });
   
   return {
