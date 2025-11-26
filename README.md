@@ -465,13 +465,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT © [Your Name]
+MIT © Praise Olaoye
 
 ## Support
 
-- 🐛 [Report a bug](https://github.com/yourusername/code-cleanup-cli/issues)
-- 💡 [Request a feature](https://github.com/yourusername/code-cleanup-cli/issues)
-- 📖 [Documentation](https://github.com/yourusername/code-cleanup-cli#readme)
+- 🐛 [Report a bug](https://github.com/iampraiez/code-cleanup-cli/issues)
+- 💡 [Request a feature](https://github.com/iampraiez/code-cleanup-cli/issues)
+- 📖 [Documentation](https://github.com/iampraiez/code-cleanup-cli#readme)
 
 ## Changelog
 
