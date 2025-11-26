@@ -71,7 +71,8 @@ export interface CleanupStats {
   commentsRemoved: number;
   consoleStatementsRemoved: number;
   emojisRemoved: number;
-  bytesReduced: number;
+  sizeReduced: number;
+  prettierFormatted?: number; // Count of files formatted
 }
 
 /**
@@ -95,8 +96,12 @@ export function createSummary(stats: CleanupStats): string {
     lines.push(`  Emojis removed: ${chalk.yellow(stats.emojisRemoved)}`);
   }
   
-  if (stats.bytesReduced > 0) {
-    lines.push(`  Size reduced: ${chalk.green(formatBytes(stats.bytesReduced))}`);
+  if (stats.sizeReduced > 0) {
+    lines.push(`  Size reduced: ${chalk.green(formatBytes(stats.sizeReduced))}`);
+  }
+
+  if (stats.prettierFormatted) {
+    lines.push(`  Files formatted (Prettier): ${chalk.magenta(stats.prettierFormatted)}`);
   }
   
   return lines.join('\n');

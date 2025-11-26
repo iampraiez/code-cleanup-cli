@@ -25,20 +25,27 @@ export interface CheckpointConfig {
  */
 export interface CleanupConfig {
   comments: boolean;
-  console: ConsoleConfig;
+  preserveJSDoc?: boolean;
+  preserveLicense?: boolean;
+  console: {
+    remove: 'all' | 'none' | string[];
+    exclude: string[];
+  };
   emojis: boolean;
   fileTypes: string[];
   ignore: string[];
-  checkpoint: CheckpointConfig;
+  checkpoint: {
+    enabled: boolean;
+    retention: number;
+  };
+  prettier?: boolean; // Enable/disable Prettier formatting
   dryRun: boolean;
-  preserveJSDoc?: boolean;
-  preserveLicense?: boolean;
 }
 
 /**
  * Default configuration
  */
-export const DEFAULT_CONFIG: CleanupConfig = {
+export const defaultConfig: CleanupConfig = {
   comments: false,
   console: {
     remove: 'none',
@@ -46,11 +53,19 @@ export const DEFAULT_CONFIG: CleanupConfig = {
   },
   emojis: false,
   fileTypes: ['js', 'jsx', 'ts', 'tsx', 'vue', 'mjs', 'cjs'],
-  ignore: [],
+  ignore: [
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/build/**',
+    '**/coverage/**',
+    '**/.git/**',
+    '**/.cleanup-checkpoints/**'
+  ],
   checkpoint: {
     enabled: true,
     retention: 10
   },
+  prettier: true, // Default to true
   dryRun: false
 };
 
@@ -103,30 +118,34 @@ export async function loadConfig(
     }
   }
 
-  // Merge: defaults < file config < CLI options
-  const config: CleanupConfig = {
-    ...DEFAULT_CONFIG,
+  // Merge file config and CLI options first to create a 'user config' layer
+  const userConfig: Partial<CleanupConfig> = {
     ...fileConfig,
     ...cliOptions
-  } as CleanupConfig;
+  };
 
-  // Handle console config merging specially
-  if (fileConfig.console || cliOptions.console) {
-    config.console = {
-      ...DEFAULT_CONFIG.console,
-      ...(fileConfig.console || {}),
-      ...(cliOptions.console || {})
-    };
-  }
+  // Merge: defaults < user config
+  const config: CleanupConfig = {
+    ...defaultConfig,
+    ...userConfig
+  };
 
-  // Handle checkpoint config merging
-  if (fileConfig.checkpoint || cliOptions.checkpoint) {
-    config.checkpoint = {
-      ...DEFAULT_CONFIG.checkpoint,
-      ...(fileConfig.checkpoint || {}),
-      ...(cliOptions.checkpoint || {})
-    };
-  }
+  // Ensure arrays are arrays (in case user config overrides them with undefined)
+  config.fileTypes = config.fileTypes || defaultConfig.fileTypes;
+  config.ignore = config.ignore || defaultConfig.ignore;
+  config.console.exclude = config.console.exclude || defaultConfig.console.exclude;
+  
+  // Merge console config specially
+  config.console = {
+    ...defaultConfig.console,
+    ...(userConfig.console || {})
+  };
+
+  // Merge checkpoint config specially
+  config.checkpoint = {
+    ...defaultConfig.checkpoint,
+    ...(userConfig.checkpoint || {})
+  };
 
   return config;
 }

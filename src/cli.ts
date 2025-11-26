@@ -39,6 +39,7 @@ interface CleanOptions {
   dryRun?: boolean;
   checkpoint?: boolean;
   yes?: boolean;
+  prettier?: boolean;
 }
 
 interface ListOptions {
@@ -63,6 +64,7 @@ program
   .option('-a, --all', 'Remove everything (comments, console, emojis)')
   .option('--dry-run', 'Preview changes without modifying files')
   .option('--no-checkpoint', 'Skip creating checkpoint')
+  .option('--no-prettier', 'Disable Prettier formatting')
   .option('-y, --yes', 'Skip confirmation prompts')
   .action(async (options: CleanOptions) => {
     try {

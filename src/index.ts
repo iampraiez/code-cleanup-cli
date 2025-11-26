@@ -5,6 +5,7 @@ import { removeEmojis } from './processors/emoji-remover.js';
 import { createCheckpoint, cleanCheckpoints } from './checkpoint/manager.js';
 import type { CleanupConfig } from './config.js';
 import type { CleanupStats } from './utils.js';
+import * as prettier from 'prettier';
 
 /**
  * File processing result
@@ -14,12 +15,13 @@ export interface FileProcessingResult {
   modified: boolean;
   originalSize: number;
   newSize: number;
-  bytesReduced: number;
+  sizeReduced: number;
   content: string;
   stats: {
     commentsRemoved: number;
     consoleStatementsRemoved: number;
     emojisRemoved: number;
+    prettierFormatted: boolean; // Added prettierFormatted to stats
   };
   error?: string;
 }
@@ -52,10 +54,12 @@ export async function processFile(
   const originalSize = Buffer.byteLength(originalContent, 'utf-8');
   
   let content = originalContent;
+  let modified = false; // Track if content was modified by any processor
   const stats = {
     commentsRemoved: 0,
     consoleStatementsRemoved: 0,
-    emojisRemoved: 0
+    emojisRemoved: 0,
+    prettierFormatted: false // Initialize prettierFormatted stat
   };
 
   // Remove comments
@@ -64,8 +68,11 @@ export async function processFile(
       preserveJSDoc: config.preserveJSDoc || false,
       preserveLicense: config.preserveLicense !== false
     });
-    content = result.code;
-    stats.commentsRemoved = result.count;
+    if (result.count > 0) {
+      content = result.code;
+      stats.commentsRemoved = result.count;
+      modified = true;
+    }
   }
 
   // Remove console statements
@@ -74,26 +81,54 @@ export async function processFile(
       remove: config.console.remove,
       exclude: config.console.exclude || []
     });
-    content = result.code;
-    stats.consoleStatementsRemoved = result.count;
+    if (result.count > 0) {
+      content = result.code;
+      stats.consoleStatementsRemoved = result.count;
+      modified = true;
+    }
   }
 
   // Remove emojis
   if (config.emojis) {
     const result = removeEmojis(content);
-    content = result.code;
-    stats.emojisRemoved = result.count;
+    if (result.count > 0) {
+      content = result.code;
+      stats.emojisRemoved = result.count;
+      modified = true;
+    }
+  }
+
+  // Apply Prettier formatting if enabled and content was modified
+  // or if Prettier is explicitly enabled and the file type is supported.
+  if (config.prettier && modified) { // Only format if content was modified by other processors
+    try {
+      // Resolve prettier config for the file
+      const prettierConfig = await prettier.resolveConfig(filePath) || {};
+      
+      const formattedContent = await prettier.format(content, {
+        ...prettierConfig,
+        filepath: filePath, // Important for Prettier to infer parser
+      });
+
+      if (formattedContent !== content) {
+        content = formattedContent;
+        stats.prettierFormatted = true;
+      }
+    } catch (err) {
+      // Log a warning but continue with the unformatted code
+      console.warn(`Warning: Prettier formatting failed for ${filePath}: ${(err as Error).message}`);
+    }
   }
 
   const newSize = Buffer.byteLength(content, 'utf-8');
-  const modified = content !== originalContent;
+  const finalModified = content !== originalContent; // Check against original content after all changes
 
   return {
     filePath,
-    modified,
+    modified: finalModified,
     originalSize,
     newSize,
-    bytesReduced: originalSize - newSize,
+    sizeReduced: originalSize - newSize,
     content,
     stats
   };
@@ -115,7 +150,8 @@ export async function processFiles(
     commentsRemoved: 0,
     consoleStatementsRemoved: 0,
     emojisRemoved: 0,
-    bytesReduced: 0,
+    sizeReduced: 0,
+    prettierFormatted: 0,
     checkpointId: null,
     files: []
   };
@@ -141,7 +177,10 @@ export async function processFiles(
         results.commentsRemoved += result.stats.commentsRemoved;
         results.consoleStatementsRemoved += result.stats.consoleStatementsRemoved;
         results.emojisRemoved += result.stats.emojisRemoved;
-        results.bytesReduced += result.bytesReduced;
+        results.sizeReduced += result.sizeReduced;
+        if (result.stats.prettierFormatted) {
+          results.prettierFormatted = (results.prettierFormatted || 0) + 1;
+        }
         
         if (!config.dryRun) {
           await writeFile(file, result.content);
@@ -156,12 +195,13 @@ export async function processFiles(
         modified: false,
         originalSize: 0,
         newSize: 0,
-        bytesReduced: 0,
+        sizeReduced: 0,
         content: '',
         stats: {
           commentsRemoved: 0,
           consoleStatementsRemoved: 0,
-          emojisRemoved: 0
+          emojisRemoved: 0,
+          prettierFormatted: false
         },
         error: (error as Error).message
       });

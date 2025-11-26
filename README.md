@@ -11,6 +11,7 @@ A production-ready CLI tool to remove comments, console statements, and emojis f
 ✨ **Remove Comments** - Strip single-line, multi-line, and JSDoc comments  
 🔇 **Remove Console Statements** - Selectively remove console.log, console.error, etc.  
 😊 **Remove Emojis** - Remove ALL Unicode emojis (not just faces)  
+🎨 **Prettier Integration** - Automatically formats code after cleanup  
 💾 **Checkpoint System** - Create backups before modifications  
 ⏮️ **Restore Functionality** - Rollback to any previous checkpoint  
 🎯 **Selective Processing** - Choose what to remove  
@@ -93,6 +94,7 @@ Clean your codebase by removing comments, console statements, and/or emojis.
 - `-a, --all` - Remove everything
 - `--dry-run` - Preview changes without modifying files
 - `--no-checkpoint` - Skip creating checkpoint
+- `--no-prettier` - Disable Prettier formatting
 - `-y, --yes` - Skip confirmation prompts
 
 **Examples:**
@@ -207,6 +209,7 @@ module.exports = {
 | `ignore` | array | `[]` | Glob patterns to ignore |
 | `checkpoint.enabled` | boolean | `true` | Enable checkpoint creation |
 | `checkpoint.retention` | number | `10` | Number of checkpoints to keep |
+| `prettier` | boolean | `true` | Enable Prettier formatting |
 
 ## Checkpoint System
 

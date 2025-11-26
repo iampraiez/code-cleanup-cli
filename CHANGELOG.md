@@ -5,7 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2025-11-25
+## [1.1.0] - 2025-11-26
+
+### Added
+- **Prettier Integration**: Automatically formats code after cleanup for better structure.
+- **CLI Option**: Added `--no-prettier` flag to disable automatic formatting.
+
+### Fixed
+- **AST Traversal**: Fixed an issue with Babel traverse imports in ESM environments.
+- **Comment Removal**: Improved fallback regex to better handle URLs in strings.
+- **CLI**: Improved default command handling when arguments are provided.
+
+## [1.0.2] - 2025-11-26
+
+### Fixed
+- **Critical Bug**: Fixed AST traversal issue that caused URLs to be treated as comments.
+- **Security**: Removed debug files from package.
+
+## [1.0.1] - 2025-11-265
 
 ### Added
 - Initial release
