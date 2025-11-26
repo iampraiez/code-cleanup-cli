@@ -1,6 +1,6 @@
 {
   "name": "code-cleanup-cli",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A production-ready CLI tool to remove comments, console statements, and emojis from your codebase with checkpoint/restore functionality",
   "type": "module",
   "main": "./dist/index.js",
