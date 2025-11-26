@@ -19,3 +19,13 @@ tsconfig.json
 jest.config.js
 init-git.sh
 test-samples/
+
+# SSH Keys (CRITICAL - DO NOT PUBLISH!)
+key.txt
+key.txt.pub
+praise_keys
+praise_keys.pub
+*.pem
+*.key
+id_rsa*
+id_ed25519*
